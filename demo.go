@@ -2,20 +2,47 @@ package main
 
 import (
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
+	"html/template"
 	"net/http"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	_, err := fmt.Fprintf(w, "My Game. %s!", r.URL.Path[1:])
-	if err != nil {
+type User struct {
+	ID, pwd string
+}
 
+var templates = template.Must(template.ParseFiles("template/index.html", "template/game.html"))
+
+func renderTemplate(w http.ResponseWriter, tmpl string, p interface{}) {
+	err := templates.ExecuteTemplate(w, tmpl+".html", p)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
+func makeHandler(fn func(w http.ResponseWriter, r *http.Request)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fn(w, r)
+	}
+}
+
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	renderTemplate(w, "index", nil)
+}
+
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	id, pwd := r.FormValue("id"), r.FormValue("pwd")
+	flag := checkIdAndPassword(id, pwd)
+	if flag == false {
+		fmt.Fprintf(w, "没有该用户！")
+		return
+	}
+	renderTemplate(w, "game", &User{ID: id, pwd: pwd})
+}
+
 func main() {
-	fmt.Println(checkIdAndPassword("bingyu", "bingyu1"))
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/", makeHandler(indexHandler))
+	http.HandleFunc("/index", makeHandler(indexHandler))
+	http.HandleFunc("/login", makeHandler(loginHandler))
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 

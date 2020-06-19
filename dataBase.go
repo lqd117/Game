@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var (
@@ -28,4 +29,12 @@ func checkIdAndPassword(id, password string) bool {
 	} else {
 		return false
 	}
+}
+
+func createUser(id, password string) bool {
+	var _, err = db.Exec("insert into User (id, password) values (?, ?)", id, password)
+	if err != nil {
+		return false
+	}
+	return true
 }

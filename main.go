@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gorilla/websocket"
 	_ "github.com/lqd117/Game/memory"
 	"github.com/lqd117/Game/session"
 	"html/template"
@@ -10,6 +11,11 @@ import (
 
 var templates = template.Must(template.ParseFiles("template/index.html", "template/game.html"))
 var globalSession *session.Manager
+var upGrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p interface{}) {
 	err := templates.ExecuteTemplate(w, tmpl+".html", p)
@@ -35,6 +41,20 @@ func gameHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	renderTemplate(w, "game", nil)
+}
+
+func wsGameHandler(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("sessionId")
+	if err != nil || cookie.Value == "" {
+		http.Redirect(w, r, "/index", 301)
+		return
+	}
+	conn, err := upGrader.Upgrade(w, r, nil)
+	if err != nil {
+		fmt.Println("websocket error", err)
+		return
+	}
+	fmt.Println(conn)
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -72,6 +92,7 @@ func main() {
 	http.HandleFunc("/index", makeHandler(indexHandler))
 	http.HandleFunc("/login", makeHandler(loginHandler))
 	http.HandleFunc("/game", makeHandler(gameHandler))
+	http.HandleFunc("/game/ws", makeHandler(wsGameHandler))
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 

@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <title>BingYu's Game</title>
 </head>
+<script type="text/javascript">
+    const wsUri = "ws://127.0.0.1:8080/game/ws";
+    websocket = new WebSocket(wsUri)
+</script>
+
 <body>
-    敬请期待。。。
+    <h1>服务器当前时间：</h1>
+    <div id="result"></div>
+
 </body>
 </html>

@@ -76,11 +76,11 @@ func (fromMemory *FromMemory) SessionInit(sid string) (session.Session, error) {
 }
 
 func (fromMemory *FromMemory) SessionRead(sid string) (session.Session, error) {
+
 	if element, ok := fromMemory.sessions[sid]; ok {
 		return element.Value.(*SessionStore), nil
 	} else {
-		sess, err := fromMemory.SessionInit(sid)
-		return sess, err
+		return nil, nil
 	}
 }
 

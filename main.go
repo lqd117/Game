@@ -44,17 +44,17 @@ func gameHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func wsGameHandler(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("sessionId")
-	if err != nil || cookie.Value == "" {
-		http.Redirect(w, r, "/index", 301)
+	sid := r.URL.Query().Get("sessionId")
+	sess := globalSession.SessionFinder(sid)
+	if sess == nil {
 		return
 	}
-	conn, err := upGrader.Upgrade(w, r, nil)
+	_, err := upGrader.Upgrade(w, r, nil)
 	if err != nil {
 		fmt.Println("websocket error", err)
 		return
 	}
-	fmt.Println(conn)
+
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {

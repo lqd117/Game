@@ -59,32 +59,33 @@ func NewManager(providerName, cookieName string, maxLifeTime int64) (*Manager, e
 func (manager *Manager) sessionId() string {
 	b := make([]byte, 32)
 	if _, err := io.ReadFull(rand.Reader, b); err != nil {
+		fmt.Println(err)
 		return ""
 	}
 	return base64.URLEncoding.EncodeToString(b)
 }
 
-func (manager *Manager) SessionStart(w http.ResponseWriter, r *http.Request) (session Session) {
+func (manager *Manager) SessionStart(w http.ResponseWriter, _ *http.Request) (session Session) {
 	manager.lock.Lock()
 	defer manager.lock.Unlock()
-	cookie, err := r.Cookie(manager.cookieName)
-	if err != nil || cookie.Value == "" {
-		sid := manager.sessionId()
-		session, _ = manager.provider.SessionInit(sid)
-		cookie := http.Cookie{
-			Name:     manager.cookieName,
-			Value:    url.QueryEscape(sid),
-			Path:     "/",
-			HttpOnly: true,
-			MaxAge:   int(manager.maxLifeTime),
-			Expires:  time.Now().Add(time.Duration(manager.maxLifeTime)),
-		}
-		http.SetCookie(w, &cookie)
-	} else {
-		sid, _ := url.QueryUnescape(cookie.Value)
-		session, _ = manager.provider.SessionRead(sid)
+
+	sid := manager.sessionId()
+	session, _ = manager.provider.SessionInit(sid)
+	cookie := http.Cookie{
+		Name:     manager.cookieName,
+		Value:    url.QueryEscape(sid),
+		Path:     "/",
+		HttpOnly: false,
+		MaxAge:   int(manager.maxLifeTime),
+		Expires:  time.Now().Add(time.Duration(manager.maxLifeTime)),
 	}
+	http.SetCookie(w, &cookie)
 	return
+}
+
+func (manager *Manager) SessionFinder(sid string) Session {
+	session, _ := manager.provider.SessionRead(sid)
+	return session
 }
 
 func (manager *Manager) SessionDestroy(w http.ResponseWriter, r *http.Request) {

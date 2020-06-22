@@ -1,8 +1,7 @@
-package memory
+package session
 
 import (
 	"container/list"
-	"github.com/lqd117/Game/session"
 	"sync"
 	"time"
 )
@@ -12,7 +11,7 @@ var provider = &FromMemory{list: list.New()}
 func init() {
 	provider.sessions = make(map[string]*list.Element, 0)
 	//注册  memory 调用的时候一定有一致
-	session.RegisterProvider("memory", provider)
+	RegisterProvider("memory", provider)
 }
 
 //session实现
@@ -65,7 +64,7 @@ type FromMemory struct {
 	list     *list.List               //用来做 gc
 }
 
-func (fromMemory *FromMemory) SessionInit(sid string) (session.Session, error) {
+func (fromMemory *FromMemory) SessionInit(sid string) (Session, error) {
 	fromMemory.lock.Lock()
 	defer fromMemory.lock.Unlock()
 	v := make(map[interface{}]interface{}, 0)
@@ -75,7 +74,7 @@ func (fromMemory *FromMemory) SessionInit(sid string) (session.Session, error) {
 	return newSess, nil
 }
 
-func (fromMemory *FromMemory) SessionRead(sid string) (session.Session, error) {
+func (fromMemory *FromMemory) SessionRead(sid string) (Session, error) {
 
 	if element, ok := fromMemory.sessions[sid]; ok {
 		return element.Value.(*SessionStore), nil

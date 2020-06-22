@@ -4,7 +4,6 @@ import (
 	"github.com/lqd117/Game/config"
 	"github.com/lqd117/Game/controller"
 	"github.com/lqd117/Game/filter"
-	_ "github.com/lqd117/Game/memory"
 	"github.com/lqd117/Game/session"
 	"net/http"
 )

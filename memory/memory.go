@@ -110,6 +110,7 @@ func (fromMemory *FromMemory) SessionGC(maxLifeTime int64) {
 		}
 	}
 }
+
 func (fromMemory *FromMemory) SessionUpdate(sid string) error {
 	fromMemory.lock.Lock()
 	defer fromMemory.lock.Unlock()

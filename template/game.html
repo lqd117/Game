@@ -7,13 +7,17 @@
 <script src="https://cdn.staticfile.org/jquery/3.4.0/jquery.min.js"></script>
 <script src="https://cdn.staticfile.org/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 <script type="text/javascript">
-    const wsUri = "ws://127.0.0.1:8080/game/ws?"+document.cookie;
-    websocket = new WebSocket(wsUri)
+    function startGame() {
+        const wsUri = "ws://127.0.0.1:8080/ws/game?"+document.cookie;
+        var conn = new WebSocket(wsUri);
+        conn.onmessage = function(ev) {
+            alert(ev.data)
+        }
+    }
 </script>
 
 <body>
-    <h1>服务器当前时间：</h1>
-    <div id="result"></div>
-
+    敬请期待。。。
+    <button onclick="startGame()">开始游戏</button>
 </body>
 </html>

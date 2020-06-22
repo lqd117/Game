@@ -1,4 +1,4 @@
-package main
+package dataBase
 
 import (
 	"database/sql"
@@ -21,7 +21,7 @@ func init() {
 	checkDBError(err)
 }
 
-func checkIdAndPassword(id, password string) bool {
+func CheckIdAndPassword(id, password string) bool {
 	var rows, err = db.Query("select 1 from User where id=? and password=? limit 1", id, password)
 	checkDBError(err)
 	if rows.Next() {
@@ -31,10 +31,10 @@ func checkIdAndPassword(id, password string) bool {
 	}
 }
 
-func createUser(id, password string) bool {
-	var _, err = db.Exec("insert into User (id, password) values (?, ?)", id, password)
-	if err != nil {
-		return false
-	}
-	return true
-}
+//func CreateUser(id, password string) bool {
+//	var _, err = db.Exec("insert into User (id, password) values (?, ?)", id, password)
+//	if err != nil {
+//		return false
+//	}
+//	return true
+//}
